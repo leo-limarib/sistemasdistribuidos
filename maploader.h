@@ -10,10 +10,12 @@
 typedef struct {
 	int height, width;
 	char **tiles;
+	int* playerPos;
 } Map;
 
 void renderMap(char **aMap, int height, int width);
 Map loadMap(char *mapFilename);
+int* getPlayerPosInMap(char **tiles, int height, int width);
 
 /************************************************
  *  Função responsável por renderizar o mapa no console.
@@ -73,4 +75,25 @@ Map loadMap(char *mapFilename) {
 		return map;
 	}
 	return map;
+}
+
+/************************************************
+ *  Função responsável por pegar a posição do player nos tiles.
+ *  @param tiles Array 2d contendo as informações dos tiles.
+ *  @param height A altura do mapa
+ *  @param width A largura do mapa
+ *  @return Retorna um array[2] com a posição [0] = x e [1] = y do player.
+ ***********************************************/
+int* getPlayerPosInMap(char **tiles, int height, int width) {
+	for(int i=0;i<height;i++) {
+		for(int j=0;j<width;j++) {
+			if(tiles[i][j] == '2') {
+				int *position = malloc(3 * sizeof(int*));
+				position[0] = i;
+				position[1] = j;
+				return position;
+			}
+		}
+	}
+	return NULL;
 }
