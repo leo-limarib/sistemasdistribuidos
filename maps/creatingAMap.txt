@@ -1,0 +1,17 @@
+O mapa deve ter o seguinte formato:
+
+4
+4
+1111
+1001
+1001
+1021
+
+Na primeira linha, informamos a altura do mapa, e na segunda, informamos o
+comprimento do mapa. E embaixo começamos a representá-lo.
+
+1 = Parede
+0 = Chão vazio.
+2 = Jogador.
+3 = Ponto de chegada.
+X = Chão por onde o jogador passou.
