@@ -13,36 +13,37 @@ typedef struct {
 	int* playerPos;
 } Map;
 
-void renderMap(char **aMap, int height, int width);
-Map loadMap(char *mapFilename);
-int* getPlayerPosInMap(char **tiles, int height, int width);
+void renderMap();
+void loadMap(char *mapFilename);
+int* getPlayerPosInMap();
+
+Map map;
 
 /************************************************
  *  Função responsável por renderizar o mapa no console.
- *  @param aMap Array com os tiles do mapa.
+ *  @param map.tiles Array com os tiles do mapa.
  *  @param height Altura do mapa.
  *  @param width Largura do mapa
  ***********************************************/
-void renderMap(char **aMap, int height, int width) {
-	printf("\n");
-	for(int i=0;i<height;i++) {
-		for(int j=0;j<width;j++) {
-      if(aMap[i][j] == '1') {
+void renderMap() {
+	for(int i=0;i<map.height;i++) {
+		for(int j=0;j<map.width;j++) {
+      if(map.tiles[i][j] == '1') {
         printf("\033[0;31m"); //Set the text to the color red
-        printf("%c", aMap[i][j]);
+        printf("%c", map.tiles[i][j]);
         printf("\033[0m");
       }
-      else if (aMap[i][j] == '2') {
+      else if (map.tiles[i][j] == '2') {
         printf("\033[01;33m"); //Set the text to the color red
-        printf("%c", aMap[i][j]);
+        printf("%c", map.tiles[i][j]);
         printf("\033[0m");
       }
-      else if (aMap[i][j] == '3') {
+      else if (map.tiles[i][j] == '3') {
         printf("\033[01;36m"); //Set the text to the color red
-        printf("%c", aMap[i][j]);
+        printf("%c", map.tiles[i][j]);
         printf("\033[0m");
       }
-      else printf("%c", aMap[i][j]);
+      else printf("%c", map.tiles[i][j]);
     }
     printf("\n");
 	}
@@ -53,10 +54,8 @@ void renderMap(char **aMap, int height, int width) {
  *  @param mapFilename String contendo o caminho até o arquivo .map.
  *  @return Uma struct Map com height, width e **tiles.
  ***********************************************/
-Map loadMap(char *mapFilename) {
-	Map map;
-
-	printf("Loading map %s", mapFilename);
+void loadMap(char *mapFilename) {
+	printf("Loading map %s\n", mapFilename);
 	FILE *mapFile = fopen(mapFilename, "r");
 
 	//Get the map size
@@ -70,11 +69,10 @@ Map loadMap(char *mapFilename) {
 			map.tiles[i] = malloc(sizeof(line) + 1);
 			strcpy(map.tiles[i], line);
 		}
+		map.playerPos = getPlayerPosInMap();
 	} else {
 		printf("Impossível abrir o mapa especificado.");
-		return map;
 	}
-	return map;
 }
 
 /************************************************
@@ -84,10 +82,10 @@ Map loadMap(char *mapFilename) {
  *  @param width A largura do mapa
  *  @return Retorna um array[2] com a posição [0] = x e [1] = y do player.
  ***********************************************/
-int* getPlayerPosInMap(char **tiles, int height, int width) {
-	for(int i=0;i<height;i++) {
-		for(int j=0;j<width;j++) {
-			if(tiles[i][j] == '2') {
+int* getPlayerPosInMap() {
+	for(int i=0;i<map.height;i++) {
+		for(int j=0;j<map.width;j++) {
+			if(map.tiles[i][j] == '2') {
 				int *position = malloc(3 * sizeof(int*));
 				position[0] = i;
 				position[1] = j;
