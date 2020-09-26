@@ -13,6 +13,7 @@
 
 #define QUEUE_LENGTH 5      //Tamanho maximo da fila de conexoes de clientes
 #define MAX_FLOW_SIZE 1024  //Tamanho maximo do buffer de caracteres
+#define MAP_HEADER_SIZE 16			//Tamanho fixo do cabeçalho da mensagem MAP
 
 int sockId, recvBytes, bindRet, getRet, sentBytes, connId, serverPort;
 unsigned int servLen, cliLen;
@@ -26,8 +27,104 @@ typedef struct {
 
 ServerInfo info;
 
+/*
+//Variaveis que preciso do setupServer() para o loop.
+// sockId, server
+listen(info.sockId, QUEUE_LENGTH);
+printf("Porta do servidor: %d\n",ntohs(info.server.sin_port));
+char buf[1200];
+
+do {
+	//Habilita o servidor para receber conexões.
+	cliLen = sizeof(info.client);
+							connId = accept(info.sockId, (struct sockaddr *)&info.client, &cliLen);
+	if (connId < 0)
+		printf("O socket nao pode aceitar conexoes\n");
+	else do { // --
+			//Recebe mensagens do cliente.
+			memset(buf, 0, sizeof(buf));
+			recvBytes = recv(connId, buf, MAX_FLOW_SIZE, 0);
+			if (recvBytes <= 0) {
+				if (recvBytes < 0)
+					printf("Ocorreu um erro na aplicacao\n");
+				else
+					printf("Encerrando a conexao do cliente\n");
+			}
+			else {
+				//Envia mensagens para o cliente.
+				sentBytes = send(connId, buf, strlen(buf), 0);
+				if (sentBytes < 0) {
+					printf("A conexao foi perdida\n");
+					recvBytes = 0;
+				}
+				else {
+					printf("Mensagem enviada: [%s]\n",buf);
+				}
+			}
+		} while (recvBytes > 0); // --
+	close(connId);	//FECHA A PORRA DA CONEXÃO
+} while (true);
+close(info.sockId);]
+*/
+
+char* mapToString(Map map) {
+	int msgSize = (map.height*map.width) + map.height-1;
+	msgSize += MAP_HEADER_SIZE;
+	char* msg = malloc(msgSize * sizeof(char));
+	sprintf(msg, "MAP;%dx%d", map.height, map.width);
+	//printf("MESAGE SIZE = %d\n", msgSize);
+	for(int i=0;i<map.height;i++) {
+		char* line = malloc((map.width + 1) * sizeof(char));
+		sprintf(line, ";%s", map.tiles[i]);
+		strtok(line, "\n");
+		strcat(msg, line);
+	}
+	return msg;
+}
+
+/*
+	Realiza a conexão com o cliente, envia o mapa e começa a "partida".
+*/
 void connectToClient(ServerInfo connInfo, Map map) {
-	printf("%d", map.height);
+	//Testing
+	mapToString(map);
+
+	//Começa a ouvir na porta info.server.sin_port.
+	listen(info.sockId, QUEUE_LENGTH);
+	printf("Porta do servidor: %d\n",ntohs(info.server.sin_port));
+	char buf[1200];
+
+	do {
+		//Habilita o servidor para receber conexões.
+		cliLen = sizeof(info.client);
+		connId = accept(info.sockId, (struct sockaddr *)&info.client, &cliLen);
+		if (connId < 0)
+			printf("O socket nao pode aceitar conexoes\n");
+		else do { // --
+				//Recebe mensagens do cliente.
+				memset(buf, 0, sizeof(buf));
+				recvBytes = recv(connId, buf, MAX_FLOW_SIZE, 0);
+				if (recvBytes <= 0) {
+					if (recvBytes < 0)
+						printf("Ocorreu um erro na aplicacao\n");
+					else
+						printf("Encerrando a conexao do cliente\n");
+				}
+				else {
+					// ------- Lista de comandos ------- //
+					if(strcmp(buf, "LOADMAP") == 0) {
+						//PARSEAR O MAPA PARA STRING E ENVIÁ-LO AO CLIENT
+						char *mapStr = mapToString(map);
+						sentBytes = send(connId, mapStr, strlen(mapStr), 0);
+					} else {
+						printf("Comando não reconhecido: %s", buf);
+					}
+					// -------------------------------- //
+				}
+			} while (recvBytes > 0); // --
+		close(connId);	//FECHA A PORRA DA CONEXÃO
+	} while (true);
+	close(info.sockId);
 }
 
 ServerInfo setupServer() {

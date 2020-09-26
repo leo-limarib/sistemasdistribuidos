@@ -20,7 +20,7 @@
 	Delimitadores = ;
 	E para declarar valor variavel=valor
 
-	Comandos recebidos do client:
+	Comandos enviandos pelo client:
 							MOVE:
 							O comando MOVE serve para o player mover o seu personagem.
 							Sintaxe: "MOVE;X=4;Y=4"
@@ -28,13 +28,14 @@
 							LOADMAP:
 							O comando LOADMAP serve para o servidor enviar o mapa para
 							o jogador.
+							Sintaxe: LOADMAP
 
 
-	Comandos enviados para o client:
+	Comandos enviados pelo server:
 							MAP:
 							Comando que envia o mapa todo em uma só mensagem (por isso temos
 						  que estabelecer um limite no tamanho de mapa (32x32)).
-							Sintaxe: MAP;4x4;1111;0000;0000;0000
+							Sintaxe: MAP;4x4;1111;0000;0000;0000;END
 											 COMANDO:TAMANHODOMAPA;LINHA1;LINHA2;....;ULTIMALINHA
 
 							MOVED:
@@ -46,56 +47,16 @@
 
 int main(int argc, char* argv[]) {
 	if(argc == 2) {
-		loadMap(argv[1]);
+		Map map = loadMap(argv[1]);
 		printf("\nMapa:\n");
-		renderMap();
+		renderMap(map);
+
+		//Configura o servidor.
+		ServerInfo info = setupServer();
+		printf("Socket Id: %d\n", info.sockId);
+		connectToClient(info, map);
 	} else {
 		printf("Erro: Sintaxe errada. \n Utilize: Main \"/caminho/ate/pastadosmapas/\"\n");
 		return 0;
 	}
-
-	//Configura o servidor.
-	ServerInfo info = setupServer();
-	printf("Socket Id: %d\n", info.sockId);
-	connectToClient(info, getMap());
-
-	/*
-	//Variaveis que preciso do setupServer() para o loop.
-	// sockId, server
-	listen(info.sockId, QUEUE_LENGTH);
-	printf("Porta do servidor: %d\n",ntohs(info.server.sin_port));
-	char buf[1200];
-
-	do {
-		//Habilita o servidor para receber conexões.
-		cliLen = sizeof(info.client);
-                connId = accept(info.sockId, (struct sockaddr *)&info.client, &cliLen);
-		if (connId < 0)
-			printf("O socket nao pode aceitar conexoes\n");
-		else do { // --
-				//Recebe mensagens do cliente.
-				memset(buf, 0, sizeof(buf));
-				recvBytes = recv(connId, buf, MAX_FLOW_SIZE, 0);
-				if (recvBytes <= 0) {
-					if (recvBytes < 0)
-						printf("Ocorreu um erro na aplicacao\n");
-					else
-						printf("Encerrando a conexao do cliente\n");
-				}
-				else {
-					//Envia mensagens para o cliente.
-					sentBytes = send(connId, buf, strlen(buf), 0);
-					if (sentBytes < 0) {
-						printf("A conexao foi perdida\n");
-						recvBytes = 0;
-					}
-					else {
-						printf("Mensagem enviada: [%s]\n",buf);
-					}
-				}
-			} while (recvBytes > 0); // --
-		close(connId);	//FECHA A PORRA DA CONEXÃO
-	} while (true);
-	close(info.sockId);]
-	*/
 }

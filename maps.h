@@ -13,15 +13,9 @@ typedef struct {
 	int* playerPos;
 } Map;
 
-void renderMap();
-void loadMap(char *mapFilename);
-int* getPlayerPosInMap();
-
-Map map;
-
-Map getMap() {
-	return map;
-}
+void renderMap(Map map);
+Map loadMap(char *mapFilename);
+int* getPlayerPosInMap(Map map);
 
 /************************************************
  *  Função responsável por renderizar o mapa no console.
@@ -29,7 +23,7 @@ Map getMap() {
  *  @param height Altura do mapa.
  *  @param width Largura do mapa
  ***********************************************/
-void renderMap() {
+void renderMap(Map map) {
 	for(int i=0;i<map.height;i++) {
 		for(int j=0;j<map.width;j++) {
       if(map.tiles[i][j] == '1') {
@@ -58,8 +52,9 @@ void renderMap() {
  *  @param mapFilename String contendo o caminho até o arquivo .map.
  *  @return Uma struct Map com height, width e **tiles.
  ***********************************************/
-void loadMap(char *mapFilename) {
+Map loadMap(char *mapFilename) {
 	printf("Loading map %s\n", mapFilename);
+	Map map;
 	FILE *mapFile = fopen(mapFilename, "r");
 
 	//Get the map size
@@ -73,7 +68,8 @@ void loadMap(char *mapFilename) {
 			map.tiles[i] = malloc(sizeof(line) + 1);
 			strcpy(map.tiles[i], line);
 		}
-		map.playerPos = getPlayerPosInMap();
+		map.playerPos = getPlayerPosInMap(map);
+		return map;
 	} else {
 		printf("Impossível abrir o mapa especificado.");
 	}
@@ -86,7 +82,7 @@ void loadMap(char *mapFilename) {
  *  @param width A largura do mapa
  *  @return Retorna um array[2] com a posição [0] = x e [1] = y do player.
  ***********************************************/
-int* getPlayerPosInMap() {
+int* getPlayerPosInMap(Map map) {
 	for(int i=0;i<map.height;i++) {
 		for(int j=0;j<map.width;j++) {
 			if(map.tiles[i][j] == '2') {
