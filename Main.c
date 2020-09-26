@@ -51,10 +51,12 @@ int main(int argc, char* argv[]) {
 		Map map = loadMap(argv[1]);
 		printf("\nMapa: (PlayerPos = (%d, %d))\n", map.playerPos[0], map.playerPos[1]);
 		renderMap(map);
+		/*
 		map = movePlayer(map, 1, 2);
 		map = movePlayer(map, 1, 1);
 		map = movePlayer(map, 2, 1);
 		map = movePlayer(map, 3, 1);
+		*/
 		//printf("\nMapa: (PlayerPos = (%d, %d))\n", map.playerPos[0], map.playerPos[1]);
 		//renderMap(map);
 

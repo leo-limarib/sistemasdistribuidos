@@ -132,11 +132,15 @@ void connectToClient(ServerInfo connInfo, Map map) {
 							char *x = strtok(NULL, ";");
 							char *y = strtok(NULL, ";");
 
-							if((x != NULL) && (y != NULL)) {
-								/*
-								char* response = movePlayer(map, atoi(x), atoi(y));
-								sentBytes = send(connId, response, strlen(response), 0);
-								*/
+							if((x != NULL) && (y != NULL) && (attempts < MAX_ATTEMPTS)) {
+								map = movePlayer(map, atoi(x), atoi(y));
+								attempts += 1;
+								if(map.ended == 0) {
+									sentBytes = send(connId, "SUCCESS", 8, 0);
+								} else {
+									sentBytes = send(connId, "COMPLETED", 10, 0);
+									recvBytes = 0;
+								}
 							} else {
 								sentBytes = send(connId, "ERROR:404", 10, 0);
 							}

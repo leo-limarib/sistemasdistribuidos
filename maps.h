@@ -105,16 +105,11 @@ int* getPlayerPosInMap(Map map) {
 
 Map movePlayer(Map map, int x, int y) {
 	printf("MOVER PARA (%d, %d)\n", x, y);
-	if((x < map.width) && (y < map.height)) {
-		//Verificar se a nova posição é para FRENTE, DIREITA, BAIXO OU ESQUERDA
-		//se não for, retornar ERROR:100
-		//Verificar se a nova posição não é uma parede/obstáculo, se for, retornar
-		//ERROR:100
-		//Andar e retornar sucesso
+	if((x < map.width) && (y < map.height) && (map.ended == 0)) {
 		int xDist = abs(y - map.playerPos[0]);
 		int yDist = abs(x - map.playerPos[1]);
 		if((xDist + yDist) == 1) {
-			if(map.tiles[y][x] == '0') {
+			if((map.tiles[y][x] == '0') || (map.tiles[y][x] == 'X')) {
 				map.tiles[map.playerPos[0]][map.playerPos[1]] = 'X';
 				map.tiles[y][x] = '2';
 				map.playerPos[0] = y;
@@ -125,13 +120,10 @@ Map movePlayer(Map map, int x, int y) {
 				map.tiles[y][x] = '4';
 				map.playerPos[0] = y;
 				map.playerPos[1] = x;
+				map.ended = 1;
 				renderMap(map);
-			}  else {
-				printf("\n(%d, %d) == %c\n", x, y, map.tiles[x][y]);
 			}
 		}
-	} else {
-		printf("DISTANCIA INVALIDA");
 	}
 	return map;
 }
