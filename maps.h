@@ -19,6 +19,10 @@ int* getPlayerPosInMap();
 
 Map map;
 
+Map getMap() {
+	return map;
+}
+
 /************************************************
  *  Função responsável por renderizar o mapa no console.
  *  @param map.tiles Array com os tiles do mapa.

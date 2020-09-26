@@ -26,34 +26,21 @@
 							Sintaxe: "MOVE;X=4;Y=4"
 
 							LOADMAP:
-							O comando LOADMAP serve para o servidor enviar o mapa inicial
-							para o jogador. Quando recebido, o servidor enviará a mensagem
-							"MAPSIZE;H=4;W=4" contendo o tamanho do mapa, após isso, enviará
-							o mapa linha por linha, e quando acabar, enviará a mensagem "LOADED"
-							Sintaxe: "LOADMAP"
+							O comando LOADMAP serve para o servidor enviar o mapa para
+							o jogador.
 
 
 	Comandos enviados para o client:
-							MAPSIZE:
-							O comando serve para o servidor informar o tamanho do mapa para
-							o player, antes de enviá-lo.
-							Sintaxe: "MAPSIZE;H=4;W=4"
+							MAP:
+							Comando que envia o mapa todo em uma só mensagem (por isso temos
+						  que estabelecer um limite no tamanho de mapa (32x32)).
+							Sintaxe: MAP;4x4;1111;0000;0000;0000
+											 COMANDO:TAMANHODOMAPA;LINHA1;LINHA2;....;ULTIMALINHA
 
-							MAPCHUNK:
-							O comando serve para enviar uma linha do mapa para o player.
-							Sintaxe: "MAPCHUNK;00000000"
-
-							MAPLOADED:
-							Serve para informar o player de que o mapa já foi todo enviado.
-							Sintaxe: "MAPLOADED"
-
-							SUCCESS:
-							Significa que a mensagem que o client enviou para nós foi recebida
-							com sucesso.
-
-							INVALID:
-							Significa que a mensagem que o client enviou contém um comando
-							inválido.
+							MOVED:
+							Confirma que o comando MOVE do player foi bem sucedido. Também
+							contém a nova posição do jogador.
+							MOVED;X=4;Y=4
 
 */
 
@@ -70,12 +57,14 @@ int main(int argc, char* argv[]) {
 	//Configura o servidor.
 	ServerInfo info = setupServer();
 	printf("Socket Id: %d\n", info.sockId);
-	char buf[1000];
+	connectToClient(info, getMap());
 
+	/*
 	//Variaveis que preciso do setupServer() para o loop.
 	// sockId, server
 	listen(info.sockId, QUEUE_LENGTH);
 	printf("Porta do servidor: %d\n",ntohs(info.server.sin_port));
+	char buf[1200];
 
 	do {
 		//Habilita o servidor para receber conexões.
@@ -107,5 +96,6 @@ int main(int argc, char* argv[]) {
 			} while (recvBytes > 0); // --
 		close(connId);	//FECHA A PORRA DA CONEXÃO
 	} while (true);
-	close(info.sockId);
+	close(info.sockId);]
+	*/
 }

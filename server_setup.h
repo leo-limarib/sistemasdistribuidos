@@ -12,8 +12,7 @@
 #include <netdb.h>
 
 #define QUEUE_LENGTH 5      //Tamanho maximo da fila de conexoes de clientes
-#define MAX_FLOW_SIZE 1000  //Tamanho maximo do buffer de caracteres
-#define true 1
+#define MAX_FLOW_SIZE 1024  //Tamanho maximo do buffer de caracteres
 
 int sockId, recvBytes, bindRet, getRet, sentBytes, connId, serverPort;
 unsigned int servLen, cliLen;
@@ -25,9 +24,13 @@ typedef struct {
 	int sockId, state;
 } ServerInfo;
 
-ServerInfo setupServer() {
-	ServerInfo info;
+ServerInfo info;
 
+void connectToClient(ServerInfo connInfo, Map map) {
+	printf("%d", map.height);
+}
+
+ServerInfo setupServer() {
 	// Abre um socket do tipo stream (TCP)
 	sockId = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockId < 0) {
@@ -65,46 +68,3 @@ ServerInfo setupServer() {
 	info.state = 1;
 	return info;
 }
-
-/*
-	//Coloca o servidor em modo listening.
-	listen(sockId, QUEUE_LENGTH);
-	printf("Porta do servidor: %d\n",ntohs(server.sin_port));
-
-	do {
-		//Habilita o servidor para receber conexões.
-		cliLen = sizeof(client);
-                connId = accept(sockId, (struct sockaddr *)&client, &cliLen);
-		if (connId < 0)
-			printf("O socket nao pode aceitar conexoes\n");
-
-		else do { // --
-
-				//Recebe mensagens do cliente.
-				memset(buf, 0, sizeof(buf));
-				recvBytes = recv(connId, buf, MAX_FLOW_SIZE, 0);
-				if (recvBytes <= 0) {
-					if (recvBytes < 0)
-						printf("Ocorreu um erro na aplicacao\n");
-					else
-						printf("Encerrando a conexao do cliente\n");
-				}
-
-				else {
-
-					//Envia mensagens para o cliente.
-					sentBytes = send(connId, buf, strlen(buf), 0);
-					if (sentBytes < 0) {
-						printf("A conexao foi perdida\n");
-						recvBytes = 0;
-					}
-					else {
-						printf("Mensagem enviada: [%s]\n",buf);
-					}
-				}
-			} while (recvBytes > 0); // --
-		close(connId);	//FECHA A PORRA DA CONEXÃO
-	} while (true);
-	close(sockId);
-	return(0);			 //FECHA O INFERNO DO SOCKET
-	*/
