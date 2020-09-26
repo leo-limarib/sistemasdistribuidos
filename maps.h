@@ -8,7 +8,7 @@
 // \033[0;33m -> yellow
 
 typedef struct {
-	int height, width;
+	int height, width, ended;
 	char **tiles;
 	int* playerPos;
 } Map;
@@ -16,6 +16,7 @@ typedef struct {
 void renderMap(Map map);
 Map loadMap(char *mapFilename);
 int* getPlayerPosInMap(Map map);
+Map movePlayer(Map map, int x, int y);
 
 /************************************************
  *  Função responsável por renderizar o mapa no console.
@@ -38,6 +39,11 @@ void renderMap(Map map) {
       }
       else if (map.tiles[i][j] == '3') {
         printf("\033[01;36m"); //Set the text to the color red
+        printf("%c", map.tiles[i][j]);
+        printf("\033[0m");
+      }
+			else if (map.tiles[i][j] == '4') {
+        printf("\033[0;32m"); //Set the text to the color red
         printf("%c", map.tiles[i][j]);
         printf("\033[0m");
       }
@@ -69,6 +75,7 @@ Map loadMap(char *mapFilename) {
 			strcpy(map.tiles[i], line);
 		}
 		map.playerPos = getPlayerPosInMap(map);
+		map.ended = 0;
 		return map;
 	} else {
 		printf("Impossível abrir o mapa especificado.");
@@ -94,4 +101,37 @@ int* getPlayerPosInMap(Map map) {
 		}
 	}
 	return NULL;
+}
+
+Map movePlayer(Map map, int x, int y) {
+	printf("MOVER PARA (%d, %d)\n", x, y);
+	if((x < map.width) && (y < map.height)) {
+		//Verificar se a nova posição é para FRENTE, DIREITA, BAIXO OU ESQUERDA
+		//se não for, retornar ERROR:100
+		//Verificar se a nova posição não é uma parede/obstáculo, se for, retornar
+		//ERROR:100
+		//Andar e retornar sucesso
+		int xDist = abs(y - map.playerPos[0]);
+		int yDist = abs(x - map.playerPos[1]);
+		if((xDist + yDist) == 1) {
+			if(map.tiles[y][x] == '0') {
+				map.tiles[map.playerPos[0]][map.playerPos[1]] = 'X';
+				map.tiles[y][x] = '2';
+				map.playerPos[0] = y;
+				map.playerPos[1] = x;
+				renderMap(map);
+			} else if (map.tiles[y][x] == '3') {
+				map.tiles[map.playerPos[0]][map.playerPos[1]] = 'X';
+				map.tiles[y][x] = '4';
+				map.playerPos[0] = y;
+				map.playerPos[1] = x;
+				renderMap(map);
+			}  else {
+				printf("\n(%d, %d) == %c\n", x, y, map.tiles[x][y]);
+			}
+		}
+	} else {
+		printf("DISTANCIA INVALIDA");
+	}
+	return map;
 }

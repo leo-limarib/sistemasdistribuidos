@@ -23,7 +23,8 @@
 	Comandos enviandos pelo client:
 							MOVE:
 							O comando MOVE serve para o player mover o seu personagem.
-							Sintaxe: "MOVE;X=4;Y=4"
+							Sintaxe: "MOVE;X;Y"
+							Exemplo: MOVE:0;1
 
 							LOADMAP:
 							O comando LOADMAP serve para o servidor enviar o mapa para
@@ -48,8 +49,14 @@
 int main(int argc, char* argv[]) {
 	if(argc == 2) {
 		Map map = loadMap(argv[1]);
-		printf("\nMapa:\n");
+		printf("\nMapa: (PlayerPos = (%d, %d))\n", map.playerPos[0], map.playerPos[1]);
 		renderMap(map);
+		map = movePlayer(map, 1, 2);
+		map = movePlayer(map, 1, 1);
+		map = movePlayer(map, 2, 1);
+		map = movePlayer(map, 3, 1);
+		//printf("\nMapa: (PlayerPos = (%d, %d))\n", map.playerPos[0], map.playerPos[1]);
+		//renderMap(map);
 
 		//Configura o servidor.
 		ServerInfo info = setupServer();

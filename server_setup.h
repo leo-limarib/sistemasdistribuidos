@@ -14,6 +14,7 @@
 #define QUEUE_LENGTH 5      //Tamanho maximo da fila de conexoes de clientes
 #define MAX_FLOW_SIZE 1024  //Tamanho maximo do buffer de caracteres
 #define MAP_HEADER_SIZE 16			//Tamanho fixo do cabeçalho da mensagem MAP
+#define MAX_ATTEMPTS 50
 
 int sockId, recvBytes, bindRet, getRet, sentBytes, connId, serverPort;
 unsigned int servLen, cliLen;
@@ -72,7 +73,7 @@ char* mapToString(Map map) {
 	msgSize += MAP_HEADER_SIZE;
 	char* msg = malloc(msgSize * sizeof(char));
 	sprintf(msg, "MAP;%dx%d", map.height, map.width);
-	//printf("MESAGE SIZE = %d\n", msgSize);
+
 	for(int i=0;i<map.height;i++) {
 		char* line = malloc((map.width + 1) * sizeof(char));
 		sprintf(line, ";%s", map.tiles[i]);
@@ -93,6 +94,7 @@ void connectToClient(ServerInfo connInfo, Map map) {
 	listen(info.sockId, QUEUE_LENGTH);
 	printf("Porta do servidor: %d\n",ntohs(info.server.sin_port));
 	char buf[1200];
+	int attempts = 0;
 
 	do {
 		//Habilita o servidor para receber conexões.
@@ -111,13 +113,36 @@ void connectToClient(ServerInfo connInfo, Map map) {
 						printf("Encerrando a conexao do cliente\n");
 				}
 				else {
-					// ------- Lista de comandos ------- //
+					// ------- Lista de comandos sem parâmetros ------- //
 					if(strcmp(buf, "LOADMAP") == 0) {
 						//PARSEAR O MAPA PARA STRING E ENVIÁ-LO AO CLIENT
 						char *mapStr = mapToString(map);
 						sentBytes = send(connId, mapStr, strlen(mapStr), 0);
-					} else {
-						printf("Comando não reconhecido: %s", buf);
+					}  else {
+						//Dar split no char ";", se reconhecermos o comando, faz, senão
+						//o comando é inválido.
+						char* command = strtok(buf, ";");
+
+						//Comandos que possuem parâmetros
+						if(strcmp(command, "MOVE") == 0) {
+							//Tentar mover, se funcionar, retornar SUCCESS;X;Y, se não, FAIL:100
+							//para quando o movimento foi impedido por uma parede ou limite do
+							//mapa, ou retornar FAIL:200 se o número de tentativas máx foi
+							//alcançado
+							char *x = strtok(NULL, ";");
+							char *y = strtok(NULL, ";");
+
+							if((x != NULL) && (y != NULL)) {
+								/*
+								char* response = movePlayer(map, atoi(x), atoi(y));
+								sentBytes = send(connId, response, strlen(response), 0);
+								*/
+							} else {
+								sentBytes = send(connId, "ERROR:404", 10, 0);
+							}
+						} else {
+							sentBytes = send(connId, "ERROR:404", 9, 0);
+						}
 					}
 					// -------------------------------- //
 				}
